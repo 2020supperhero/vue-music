@@ -1,12 +1,12 @@
 <template lang="pug">
 .recommend
-  scroll.recommend-content
+  scroll.recommend-content(v-loading="loading")
     div
       .slider-wrapper
         .slider-content
           slider(:sliders="sliders" v-if="sliders.length")
       .command-list
-        h1.list-title() 热门歌单推荐
+        h1.list-title(v-show="!loading") 热门歌单推荐
         ul
           li.item(v-for="item in albums" @click="selectItem(item)")
             .icon
@@ -37,6 +37,11 @@ export default {
     return {
       sliders: [],
       albums: []
+    }
+  },
+  computed: {
+    loading() {
+      return !this.sliders.length || !this.albums.length
     }
   }
 }
