@@ -21,7 +21,6 @@ export const useFixed = function(props) {
   const fixedStyle = computed(() => {
     const distanceVal = distance.value
     const diff = (distanceVal > 0 && distanceVal < TITLE_HEIGHT) ? distanceVal - TITLE_HEIGHT : 0
-    console.log('diff-->', diff)
     return {
       transform: `translate3d(0, ${diff}px, 0)`
     }
@@ -69,6 +68,7 @@ export const useFixed = function(props) {
     groupRef,
     onScroll,
     fixedTitle,
-    fixedStyle
+    fixedStyle,
+    currentIndex
   }
 }

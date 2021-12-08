@@ -32,8 +32,6 @@ const loadingDirective = {
 const append = function(el) {
   // 样式对象
   const style = getComputedStyle(el)
-  console.log('style==>', style)
-  console.log('style==>', style.position)
   if (['absolute', 'fixed', 'relative'].indexOf(style.position) === -1) {
     addClass(el, relativeCls)
   }
