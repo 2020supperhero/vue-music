@@ -9,7 +9,7 @@ scroll.index-list(
     li.group(v-for="items in data")
       .title {{ items.title }}
       ul
-        li.item(v-for="item in items.list")
+        li.item(v-for="item in items.list" @click="onItemClick(item)")
           img.avatar(:src="item.pic", alt="")
           span.name {{ item.name }}
   //- 标题
@@ -46,12 +46,16 @@ export default {
       default: () => []
     }
   },
-  setup(props) {
+  setup(props, { emit }) {
     const { groupRef, onScroll, fixedTitle, fixedStyle, currentIndex } = useFixed(props)
     const { arrTitle, onShortcutTouchStart, scrollRef, onShortcutTouchMove } = useShortCut(props, groupRef)
-    console.log(arrTitle)
+
+    function onItemClick(item) {
+      emit('select', item)
+    }
 
     return {
+      onItemClick,
       groupRef,
       onScroll,
       fixedTitle,
