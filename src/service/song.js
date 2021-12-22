@@ -1,7 +1,6 @@
 import { get } from './base'
 
 export const porcessSongs = function(songs) {
-  console.log('songs----1111', songs)
   if (!songs.length) {
     return Promise.resolve(songs)
   }
@@ -11,7 +10,6 @@ export const porcessSongs = function(songs) {
       return song.mid
     })
   }).then(result => {
-    console.log('result22222--->', result)
     const map = result.map
     return songs.map(song => {
       song.url = map[song.mid]

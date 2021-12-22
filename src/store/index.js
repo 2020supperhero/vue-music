@@ -1,5 +1,5 @@
 import { createStore, createLogger } from 'vuex'
-import * as state from './state'
+import { state } from './state'
 import mutations from './mutations'
 import * as getters from './getter'
 import * as actions from './action'

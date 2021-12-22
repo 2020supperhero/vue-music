@@ -1,4 +1,4 @@
-export const shuffle = function(list) {
+ export const shuffle = function(list) {
   console.log('list-->', list)
   const arr = list.slice()
   for (let i = 0; i < arr.length; i++) {

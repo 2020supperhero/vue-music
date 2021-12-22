@@ -5,6 +5,6 @@ export const state = {
   playList: [],
   playing: false,
   playMode: PLAY_MODE.sequence,
-  currentindex: 0,
+  currentIndex: 0,
   fullScreen: false
 }

@@ -117,13 +117,10 @@ export default {
     this.imagHeight = this.$refs.bgImage.clientHeight
     // 最大滚动高度
     this.maxTranslateY = this.imagHeight - RESERVED_HEIGHT
-    console.log('this.imagHeight-->', this.imagHeight)
-    console.log('scrollStyle-->', this.scrollStyle)
   },
   methods: {
     onBack() {
       this.$router.back()
-      console.log(111)
     },
     onScroll(pos) {
       this.scrollY = -pos.y
@@ -135,7 +132,6 @@ export default {
       })
     },
     random() {
-      console.log('this.songs')
       this.randomPlay(this.songs)
     },
     ...mapActions([

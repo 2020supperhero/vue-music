@@ -310,8 +310,8 @@ const handleSongList = function(list) {
       singer: mergeSinger(info.singer),
       url: '',
       duration: info.interval,
-      pic: info.albummid ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.albummid}.jpg?max_age=2592000` : fallbackPicUrl,
-      album: info.albumname
+      pic: info.album.mid ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${info.album.mid}.jpg?max_age=2592000` : fallbackPicUrl,
+      album: info.album.name
     }
     songList.push(song)
   })
