@@ -7,11 +7,11 @@
       .back(@click="goBack")
         i.icon-back
       .title {{ currentSong.name }}
-      .subtitle {{ currentSong.singer }}
+      .subtitle {{ playMode }}
     .bottom
       .operators
         .icon.i-left
-          i.icon-sequence
+          i(:class="modeIcon" @click="changeMode")
         .icon.i-left(:class="disableCls")
           i.icon-prev(@click="prevPlay")
         .icon.i-center(:class="disableCls")
@@ -22,7 +22,9 @@
         .icon.i-right(:class="disableCls")
           i.icon-next(@click="nextPlay")
         .icon.i-right
-          i.icon-not-favorite
+          i.icon-not-favorite(
+            :class="getFavoriteIcon(currentSong)"
+            @click="toggleFavorite(currentSong)")
   audio(
     ref="audioRef"
     @pause="pause"
@@ -34,6 +36,8 @@
 <script>
 import { computed, defineComponent, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import { userMode } from './use-mode'
+import { useFavorite } from './use-favorite'
 
 export default defineComponent({
   name: 'player',
@@ -42,11 +46,11 @@ export default defineComponent({
     const songReady = ref(false)
 
     const store = useStore()
-    console.log('store123==>', store)
     const fillScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
     const currentIndex = computed(() => store.state.currentIndex)
     const playList = computed(() => store.state.playList)
+    const playMode = computed(() => store.state.playMode)
     const playing = computed(() => store.state.playing)
     const playIcon = computed(() => {
       return playing.value ? 'icon-pause' : 'icon-play'
@@ -56,8 +60,8 @@ export default defineComponent({
       return songReady.value ? '' : 'disable'
     })
 
-    watch(currentSong, (newSong) => {
-      console.log('newSong-->', newSong)
+    watch(currentSong, (newSong, oldSong) => {
+      console.log('newSong--->', newSong, oldSong)
       if (!newSong.id || !newSong.url) {
         return
       }
@@ -65,8 +69,6 @@ export default defineComponent({
       songReady.value = false
       const audioEl = audioRef.value
       audioEl.src = newSong.url
-      console.log('audioEl-->', audioEl)
-      console.log('audioEl-->', typeof audioEl)
       audioEl.play()
     })
 
@@ -78,6 +80,11 @@ export default defineComponent({
       newPlaying ? audioEl.play() : audioEl.pause()
     })
 
+    // hooks
+    const { modeIcon, changeMode } = userMode()
+    const { getFavoriteIcon, toggleFavorite } = useFavorite()
+
+    console.log('modeIcon-->', modeIcon.value)
     const goBack = function() {
       store.commit('setFullScreen', false)
     }
@@ -106,10 +113,8 @@ export default defineComponent({
       } else {
         let index = currentIndex.value - 1
         if (index === -1) {
-          console.log(1233)
           index = list.length - 1
         }
-        console.log('index-->', index)
         store.commit('setCurrentIndex', index)
         // 如果当前是暂停的状态，切歌之后要播放
         if (!playing.value) {
@@ -127,12 +132,9 @@ export default defineComponent({
         loop()
       } else {
         let index = currentIndex.value + 1
-        console.log('index-->', index)
         if (index === playList.value.length) {
-          console.log(1233)
           index = 0
         }
-        console.log('index-->', index)
         store.commit('setCurrentIndex', index)
         // 如果当前是暂停的状态，切歌之后要播放
         if (!playing.value) {
@@ -172,7 +174,14 @@ export default defineComponent({
       nextPlay,
       ready,
       disableCls,
-      error
+      error,
+      // mode
+      modeIcon,
+      changeMode,
+      playMode,
+      // favorite
+      getFavoriteIcon,
+      toggleFavorite
     }
   }
 })

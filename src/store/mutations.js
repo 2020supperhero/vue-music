@@ -4,8 +4,8 @@ const mutations = {
     state.playing = playing
   },
   // 顺序播放列表
-  setSquenceList(state, list) {
-    state.squenceList = list
+  setSequenceList(state, list) {
+    state.sequenceList = list
   },
   // 设置播放列表
   setPlayList(state, list) {
@@ -21,6 +21,9 @@ const mutations = {
   },
   setFullScreen(state, fullScreen) {
     state.fullScreen = fullScreen
+  },
+  setFavoriteList(state, list) {
+    state.favoriteList = list
   }
 }
 
