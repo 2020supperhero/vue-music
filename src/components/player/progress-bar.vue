@@ -46,6 +46,7 @@ export default {
     }
   },
   created() {
+    // 不需要在模板中进行响应式变化的数据 就放到created中
     this.touch = {}
   },
   methods: {
