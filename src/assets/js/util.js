@@ -14,3 +14,12 @@ const getRandom = function(max) {
 const swap = function(arr, i, j) {
   [arr[i], arr[j]] = [arr[j], arr[i]]
 }
+
+// 时间格式化
+export const formatTime = function(interval) {
+  // 向下取整
+  interval = interval | 0
+  const minute = ((interval / 60 | 0) + '').padStart(2, '0')
+  const second = ((interval % 60 | 0) + '').padStart(2, '0')
+  return `${minute}:${second}`
+}

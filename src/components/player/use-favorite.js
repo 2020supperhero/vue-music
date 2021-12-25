@@ -28,7 +28,6 @@ export const useFavorite = function() {
   }
 
   const isFavorite = function(song) {
-    console.log('favoriteList.value-->111222222', favoriteList.value)
     return ~(favoriteList.value.findIndex(item => {
       return item.id === song.id
     }))

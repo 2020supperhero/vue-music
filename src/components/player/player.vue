@@ -7,8 +7,17 @@
       .back(@click="goBack")
         i.icon-back
       .title {{ currentSong.name }}
-      .subtitle {{ playMode }}
+      .subtitle {{ currentSong.singer }}
     .bottom
+      .progress-wrapper
+        span.time.time-l {{ formatTime(currentTime) }}
+        .progress-bar-wrapper
+          progress-bar(
+            :progress="progress"
+            @progress-changing="onProgressChanging"
+            @progress-changed="onProgressChanged"
+            )
+        span.time.time-r {{ formatTime(currentSong.duration) }}
       .operators
         .icon.i-left
           i(:class="modeIcon" @click="changeMode")
@@ -30,6 +39,8 @@
     @pause="pause"
     @canplay="ready"
     @error="error"
+    @timeupdate="updateTime"
+    @ended='end'
     )
 </template>
 
@@ -38,12 +49,20 @@ import { computed, defineComponent, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { userMode } from './use-mode'
 import { useFavorite } from './use-favorite'
+import ProgressBar from './progress-bar.vue'
+import { formatTime } from '@/assets/js/util.js'
+import { PLAY_MODE } from '@/assets/js/constant.js'
 
 export default defineComponent({
   name: 'player',
+  components: {
+    ProgressBar
+  },
   setup() {
     const audioRef = ref(null)
     const songReady = ref(false)
+    const currentTime = ref(0)
+    let progressChanging = true
 
     const store = useStore()
     const fillScreen = computed(() => store.state.fullScreen)
@@ -60,11 +79,15 @@ export default defineComponent({
       return songReady.value ? '' : 'disable'
     })
 
+    const progress = computed(() => {
+      return currentTime.value / currentSong.value.duration
+    })
     watch(currentSong, (newSong, oldSong) => {
       console.log('newSong--->', newSong, oldSong)
       if (!newSong.id || !newSong.url) {
         return
       }
+      currentTime.value = 0
       // 歌曲变化的时候
       songReady.value = false
       const audioEl = audioRef.value
@@ -148,6 +171,7 @@ export default defineComponent({
       // 设置当前的播放进度 单位为秒s
       audioEl.currentTime = 0
       audioEl.play()
+      store.commit('setPlayingState', true)
     }
 
     // 在开始播放之前回触发该事件
@@ -162,6 +186,40 @@ export default defineComponent({
     const error = function() {
       songReady.value = true
     }
+
+    // 监视进度条
+    const updateTime = function(e) {
+      if (progressChanging) {
+        currentTime.value = e.target.currentTime
+      }
+    }
+
+    // progress正在改变
+    const onProgressChanging = function(progress) {
+      progressChanging = true
+      audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+      console.log('currentTime.value-->', currentTime.value)
+    }
+
+    // 手指松开的时候
+    const onProgressChanged = function(progress) {
+      progressChanging = true
+      audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
+      if (!playing.value) {
+        store.commit('setPlayingState', true)
+      }
+    }
+
+    // 播放结束
+    const end = function() {
+      currentTime.value = 0
+      if (playMode.value === PLAY_MODE.loop) {
+        loop()
+      } else {
+        nextPlay()
+      }
+    }
+
     return {
       fillScreen,
       currentSong,
@@ -170,6 +228,7 @@ export default defineComponent({
       playIcon,
       togglePlay,
       pause,
+      progress,
       prevPlay,
       nextPlay,
       ready,
@@ -181,7 +240,13 @@ export default defineComponent({
       playMode,
       // favorite
       getFavoriteIcon,
-      toggleFavorite
+      toggleFavorite,
+      currentTime,
+      updateTime,
+      formatTime,
+      onProgressChanged,
+      onProgressChanging,
+      end
     }
   }
 })
@@ -247,6 +312,29 @@ export default defineComponent({
       width: 100%;
       position: absolute;
       bottom: 50px;
+      .progress-wrapper {
+        display: flex;
+        align-items: center;
+        width: 80%;
+        margin: 0 auto;
+        padding: 10px 0;
+        .time {
+          color: $color-text;
+          font-size: $font-size-small;
+          flex: 0 0 40px;
+          line-height: 30px;
+          width: 40px;
+          &.time-l {
+            text-align: left;
+          }
+          &.time-r {
+            text-align: right;
+          }
+        }
+        .progress-bar-wrapper {
+          flex: 1;
+        }
+      }
       .operators {
         display: flex;
         justify-content: space-around;
