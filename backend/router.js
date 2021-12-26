@@ -6,6 +6,7 @@
  */
 
 const axios = require('axios')
+const { Base64 } = require('js-base64')
 const pinyin = require('pinyin')
 // const Bsse64 = require('js-base64').Base64
 // 获取签名方法
@@ -69,6 +70,7 @@ const registerRouter = function(app) {
   registerSingerList(app)
   registerSingerDetail(app)
   registerSongsUrl(app)
+  registerlyric(app)
 }
 
 // 注册推荐列表接口路由
@@ -402,6 +404,32 @@ const registerSongsUrl = function(app) {
           map: urlMap
         }
       })
+    })
+  })
+}
+
+// 注册歌词接口
+const registerlyric = function(app) {
+  app.get('/api/getLyric', (req, res) => {
+    const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+
+    get(url, {
+      '-': 'MusicJsonCallback_lrc',
+      pcachetime: +new Date(),
+      songmid: req.query.mid,
+      g_tk_new_20200303: token
+    }).then(response => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        res.json({
+          code: ERR_OK,
+          result: {
+            lyric: Base64.decode(data.lyric)
+          }
+        })
+      } else {
+        res.json(data)
+      }
     })
   })
 }

@@ -8,7 +8,42 @@
         i.icon-back
       .title {{ currentSong.name }}
       .subtitle {{ currentSong.singer }}
+    .middle(
+      @touchstart.prevent="onMiddleTouchStart"
+      @touchmove.prevent="onMiddleTouchMove"
+      @touchend.prevent="onMiddleTouchEnd"
+    )
+      .middle-l(:style="middleLStyle")
+        .cd-wrapper
+          .cd(ref="cdRef")
+            img.image(
+              ref="cdImageRef"
+              :class="cdCls"
+              :src="currentSong.pic"
+              )
+        .playing-lyric-wrapper
+          .playing-lyric {{ playingLyric }}
+      scroll.middle-r(
+        ref="lyricScrollRef"
+        :style="middleRStyle"
+        )
+        .lyric-wrapper
+          div(
+            v-if="currentLyric"
+            ref="lyricListRef"
+            )
+            p.text(
+              :class="{'current': currentLineNum === index}"
+              v-for="(line, index) in currentLyric.lines"
+              :key="line.num"
+              ) {{ line.txt }}
+          .pure-music(v-show="pureMusicLyric")
+            p {{ pureMusicLyric }}
+
     .bottom
+      .dot-wrapper
+        span.dot(:class="{'active': currentShow==='cd'}")
+        span.dot(:class="{'active': currentShow==='lyric'}")
       .progress-wrapper
         span.time.time-l {{ formatTime(currentTime) }}
         .progress-bar-wrapper
@@ -49,14 +84,19 @@ import { computed, defineComponent, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { userMode } from './use-mode'
 import { useFavorite } from './use-favorite'
+import { useCd } from './use-cd'
+import { useLyric } from './use-lyric'
+import { useMiddleInteractive } from './use-middle-interactive'
 import ProgressBar from './progress-bar.vue'
+import Scroll from '@/components/base/scroll/scroll.vue'
 import { formatTime } from '@/assets/js/util.js'
 import { PLAY_MODE } from '@/assets/js/constant.js'
 
 export default defineComponent({
   name: 'player',
   components: {
-    ProgressBar
+    ProgressBar,
+    Scroll
   },
   setup() {
     const audioRef = ref(null)
@@ -91,6 +131,7 @@ export default defineComponent({
       // 歌曲变化的时候
       songReady.value = false
       const audioEl = audioRef.value
+      console.log('audioEl===>', audioEl)
       audioEl.src = newSong.url
       audioEl.play()
     })
@@ -100,12 +141,38 @@ export default defineComponent({
         return
       }
       const audioEl = audioRef.value
-      newPlaying ? audioEl.play() : audioEl.pause()
+      // 播放
+      if (newPlaying) {
+        audioEl.play()
+        playLyric() // 播放歌词
+      } else {
+        audioEl.pause()
+        stopLyric() // 停止播放歌词
+      }
     })
 
     // hooks
     const { modeIcon, changeMode } = userMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
+    const { cdCls, cdRef, cdImageRef } = useCd()
+    const {
+      currentLyric,
+      currentLineNum,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
+      playingLyric,
+      playLyric,
+      stopLyric
+      } = useLyric({ songReady, currentTime })
+    const {
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd,
+      currentShow,
+      middleLStyle,
+      middleRStyle
+    } = useMiddleInteractive()
 
     console.log('modeIcon-->', modeIcon.value)
     const goBack = function() {
@@ -180,6 +247,7 @@ export default defineComponent({
         return
       }
       songReady.value = true
+      playLyric()
     }
 
     // 即使当前播放错误 也能切歌
@@ -199,6 +267,8 @@ export default defineComponent({
       progressChanging = true
       audioRef.value.currentTime = currentTime.value = currentSong.value.duration * progress
       console.log('currentTime.value-->', currentTime.value)
+      playLyric() // 先同步歌词
+      stopLyric() // 再停止播放
     }
 
     // 手指松开的时候
@@ -208,6 +278,8 @@ export default defineComponent({
       if (!playing.value) {
         store.commit('setPlayingState', true)
       }
+      // 手指松开继续播放
+      playLyric()
     }
 
     // 播放结束
@@ -221,32 +293,48 @@ export default defineComponent({
     }
 
     return {
+      /* variate */
       fillScreen,
       currentSong,
       audioRef,
-      goBack,
-      playIcon,
-      togglePlay,
       pause,
+      cdCls,
+      playIcon,
       progress,
+      disableCls,
+      modeIcon,
+      currentTime,
+      cdImageRef,
+      cdRef,
+      currentLyric,
+      currentLineNum,
+      lyricScrollRef,
+      lyricListRef,
+      pureMusicLyric,
+      playingLyric,
+      currentShow,
+      middleLStyle,
+      middleRStyle,
+      /* computed */
+      goBack,
+      togglePlay,
       prevPlay,
       nextPlay,
       ready,
-      disableCls,
       error,
-      // mode
-      modeIcon,
       changeMode,
-      playMode,
+      /* methods */
       // favorite
       getFavoriteIcon,
       toggleFavorite,
-      currentTime,
       updateTime,
       formatTime,
       onProgressChanged,
       onProgressChanging,
-      end
+      end,
+      onMiddleTouchStart,
+      onMiddleTouchMove,
+      onMiddleTouchEnd
     }
   }
 })
@@ -308,10 +396,110 @@ export default defineComponent({
         color: $color-text;
       }
     }
+    .middle {
+      position: fixed;
+      width: 100%;
+      top: 105px;
+      bottom: 170px;
+      white-space: nowrap;
+      font-size: 0;
+      .middle-l {
+        display: inline-block;
+        // display: none;
+        vertical-align: top;
+        position: relative;
+        width: 100%;
+        padding-top: 80%;
+        .cd-wrapper {
+          position: absolute;
+          left: 50%;
+          top: 0;
+          transform: translateX(-50%);
+          width: 80%;
+          box-sizing: border-box;
+          height: 100%;
+          .cd {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            img {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              // height: 100%;
+              border-radius: 50%;
+              box-sizing: border-box;
+              border: 10px solid rgba(255, 255, 255, .1);
+            }
+            .playing {
+              animation: rotate 20s linear infinite;
+            }
+          }
+        }
+        .playing-lyric-wrapper {
+          width: 80%;
+          margin: 30px auto 0 auto;
+          overflow: hidden;
+          text-align: center;
+          .playing-lyric {
+            height: 20px;
+            line-height: 20px;
+            font-size: $font-size-medium;
+            color: $color-text-l;
+          }
+        }
+      }
+      .middle-r {
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        .lyric-wrapper {
+          width: 80%;
+          margin: 0 auto;
+          overflow: hidden;
+          text-align: center;
+          .text {
+            line-height: 32px;
+            color: $color-text-l;
+            font-size: $font-size-medium;
+            &.current {
+              color: $color-text;
+            }
+          }
+          .pure-music {
+            padding-top: 50%;
+            line-height: 32px;
+            color: $color-text-l;
+            font-size: $font-size-medium;
+          }
+        }
+      }
+    }
     .bottom {
       width: 100%;
       position: absolute;
       bottom: 50px;
+      .dot-wrapper {
+        text-align: center;
+        font-size: 0;
+        .dot {
+          display: inline-block;
+          vertical-align: middle;
+          margin: 0 4px;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: $color-text-l;
+          &.active {
+            width: 20px;
+            border-radius: 5px;
+            background-color: $color-text-ll;
+          }
+        }
+      }
       .progress-wrapper {
         display: flex;
         align-items: center;
