@@ -1,8 +1,8 @@
 <template lang="pug">
-.player
-  .normal-player(v-if="fillScreen")
+.player(v-show="playList.length")
+  .normal-player(v-show="fullScreen")
     .background
-      img(:src="currentSong.pic")
+      img(:src="currentSong && currentSong.pic")
     .top
       .back(@click="goBack")
         i.icon-back
@@ -48,6 +48,7 @@
         span.time.time-l {{ formatTime(currentTime) }}
         .progress-bar-wrapper
           progress-bar(
+            ref="barRef"
             :progress="progress"
             @progress-changing="onProgressChanging"
             @progress-changed="onProgressChanged"
@@ -69,6 +70,10 @@
           i.icon-not-favorite(
             :class="getFavoriteIcon(currentSong)"
             @click="toggleFavorite(currentSong)")
+  mini-player(
+    :progress="progress"
+    :toggle-play="togglePlay"
+    )
   audio(
     ref="audioRef"
     @pause="pause"
@@ -80,7 +85,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, ref, watch } from 'vue'
+import { computed, defineComponent, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { userMode } from './use-mode'
 import { useFavorite } from './use-favorite'
@@ -91,21 +96,24 @@ import ProgressBar from './progress-bar.vue'
 import Scroll from '@/components/base/scroll/scroll.vue'
 import { formatTime } from '@/assets/js/util.js'
 import { PLAY_MODE } from '@/assets/js/constant.js'
+import MiniPlayer from './mini-player.vue'
 
 export default defineComponent({
   name: 'player',
   components: {
     ProgressBar,
-    Scroll
+    Scroll,
+    MiniPlayer
   },
   setup() {
     const audioRef = ref(null)
+    const barRef = ref(null)
     const songReady = ref(false)
     const currentTime = ref(0)
     let progressChanging = true
 
     const store = useStore()
-    const fillScreen = computed(() => store.state.fullScreen)
+    const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
     const currentIndex = computed(() => store.state.currentIndex)
     const playList = computed(() => store.state.playList)
@@ -120,10 +128,12 @@ export default defineComponent({
     })
 
     const progress = computed(() => {
-      return currentTime.value / currentSong.value.duration
+      if (currentSong.value && currentSong.value.duration) {
+        return currentTime.value / currentSong.value.duration
+      }
+      return 0
     })
     watch(currentSong, (newSong, oldSong) => {
-      console.log('newSong--->', newSong, oldSong)
       if (!newSong.id || !newSong.url) {
         return
       }
@@ -131,7 +141,6 @@ export default defineComponent({
       // 歌曲变化的时候
       songReady.value = false
       const audioEl = audioRef.value
-      console.log('audioEl===>', audioEl)
       audioEl.src = newSong.url
       audioEl.play()
     })
@@ -148,6 +157,13 @@ export default defineComponent({
       } else {
         audioEl.pause()
         stopLyric() // 停止播放歌词
+      }
+    })
+
+    watch(fullScreen, async (newFullScreen) => {
+      if (fullScreen.value) {
+        await nextTick()
+        barRef.value.setOffset(progress.value)
       }
     })
 
@@ -294,9 +310,10 @@ export default defineComponent({
 
     return {
       /* variate */
-      fillScreen,
+      fullScreen,
       currentSong,
       audioRef,
+      barRef,
       pause,
       cdCls,
       playIcon,
@@ -315,6 +332,7 @@ export default defineComponent({
       currentShow,
       middleLStyle,
       middleRStyle,
+      playList,
       /* computed */
       goBack,
       togglePlay,

@@ -21,7 +21,7 @@ export const useCd = function () {
     // 获取外层的旋转
     const wrapperTransform = getComputedStyle(wrapper).transform
     const innerTransform = getComputedStyle(inner).transform
-    wrapper.style.transform = wrapperTransform === 'none' ? innerTransform : wrapperTransform.concat('', innerTransform)
+    wrapper.style.transform = wrapperTransform === 'none' ? innerTransform : innerTransform.concat(' ', wrapperTransform)
   }
 
   return {
