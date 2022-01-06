@@ -87,7 +87,7 @@
 <script>
 import { computed, defineComponent, nextTick, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { userMode } from './use-mode'
+import { useMode } from './use-mode'
 import { useFavorite } from './use-favorite'
 import { useCd } from './use-cd'
 import { useLyric } from './use-lyric'
@@ -143,6 +143,7 @@ export default defineComponent({
       const audioEl = audioRef.value
       audioEl.src = newSong.url
       audioEl.play()
+      store.commit('setPlayingState', true)
     })
 
     watch(playing, (newPlaying) => {
@@ -168,7 +169,7 @@ export default defineComponent({
     })
 
     // hooks
-    const { modeIcon, changeMode } = userMode()
+    const { modeIcon, changeMode } = useMode()
     const { getFavoriteIcon, toggleFavorite } = useFavorite()
     const { cdCls, cdRef, cdImageRef } = useCd()
     const {
@@ -222,10 +223,6 @@ export default defineComponent({
           index = list.length - 1
         }
         store.commit('setCurrentIndex', index)
-        // 如果当前是暂停的状态，切歌之后要播放
-        if (!playing.value) {
-          store.commit('setPlayingState', true)
-        }
       }
     }
     // 切换后一首歌
@@ -242,10 +239,6 @@ export default defineComponent({
           index = 0
         }
         store.commit('setCurrentIndex', index)
-        // 如果当前是暂停的状态，切歌之后要播放
-        if (!playing.value) {
-          store.commit('setPlayingState', true)
-        }
       }
     }
     // 循环播放

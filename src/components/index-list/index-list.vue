@@ -31,7 +31,7 @@ scroll.index-list(
 </template>
 
 <script>
-import Scroll from '../scroll/scroll.vue'
+import Scroll from '../wrap-scroll'
 import { useFixed } from './use-fixed'
 import { useShortCut } from './use-shortcut'
 

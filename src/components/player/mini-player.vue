@@ -32,20 +32,29 @@ transition(name="mini")
         i.icon-mini(
           :class="miniPlayIcon"
         )
+    .control(
+      @click.stop="showPlayist"
+    )
+      i.icon-playlist
+    Playlist(
+      ref="playlistRef"
+      )
 </template>
 
 <script>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import ProgressCircle from './progress-circle.vue'
 import { useCd } from './use-cd'
 import { useMiniSlider } from './use-mini-slider'
+import Playlist from './playlist.vue'
 
 export default {
   name: 'mini-palyer',
   components: {
-    ProgressCircle
-  },
+    ProgressCircle,
+    Playlist
+},
   props: {
     progress: {
       type: Number,
@@ -54,6 +63,7 @@ export default {
     togglePlay: Function
   },
   setup(props) {
+    const playlistRef = ref(null)
     const store = useStore()
     const fullScreen = computed(() => store.state.fullScreen)
     const currentSong = computed(() => store.getters.currentSong)
@@ -71,7 +81,12 @@ export default {
       store.commit('setFullScreen', true)
     }
 
+    const showPlayist = function() {
+      playlistRef.value.show()
+    }
+
     return {
+      playlistRef,
       fullScreen,
       currentSong,
       playList,
@@ -80,7 +95,8 @@ export default {
       cdRef,
       cdImageRef,
       showNormalPlayer,
-      miniPlayIcon
+      miniPlayIcon,
+      showPlayist
     }
   }
 }
@@ -152,19 +168,25 @@ export default {
     flex: 0 0 30px;
     width: 30px;
     padding: 0 10px;
-    .progress-circle {
-      position: absolute;
-      right: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      .icon-mini {
-        position: absolute;
-        left: 0;
-        top: 0;
-        color: $color-theme-d;
-        font-size: 32px;
-      }
+    .icon-playlist {
+      position: relative;
+      top: -2px;
+      font-size: 28px;
+      color: $color-theme-d;
     }
+    // .progress-circle {
+    //   position: absolute;
+    //   right: 15px;
+    //   top: 50%;
+    //   transform: translateY(-50%);
+    .icon-mini {
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: $color-theme-d;
+      font-size: 32px;
+    }
+    // }
   }
   &.mini-enter-active, &.mini-leave-active {
     transition: all 0.6s cubic-bezier(0.45, 0, 0.55, 1);

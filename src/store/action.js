@@ -36,3 +36,45 @@ export const changeMode = function({ commit, state, getters }, mode) {
   commit('setCurrentIndex', index)
   commit('setPlayMode', mode)
 }
+
+export const removeSong = function({ commit, state }, song) {
+  console.log('song---->', song.id)
+  const sequenceList = state.sequenceList.slice()
+  const playList = state.playList.slice()
+
+  const sequenceIndex = findIndex(sequenceList, song)
+  const playIndex = findIndex(playList, song)
+
+  let currentIndex = state.currentIndex
+  if (playIndex < currentIndex || currentIndex === playList.length - 1) {
+    currentIndex--
+  }
+
+  if (sequenceIndex < 0 || playIndex < 0) {
+    return
+  }
+
+  sequenceList.splice(sequenceIndex, 1)
+  playList.splice(playIndex, 1)
+
+  // 只能通过mutation去删除数据
+  commit('setSequenceList', sequenceList)
+  commit('setPlayList', playList)
+  commit('setCurrentIndex', currentIndex)
+  if (!playList.length) {
+    commit('setPlayingState', false)
+  }
+}
+
+export const clearSongList = function({ commit }) {
+  commit('setSequenceList', [])
+  commit('setPlayList', [])
+  commit('setCurrentIndex', 0)
+  commit('setPlayingState', false)
+}
+
+function findIndex(list, song) {
+  return list.findIndex(item => {
+    return item.id === song.id
+  })
+}
