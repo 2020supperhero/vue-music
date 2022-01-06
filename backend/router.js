@@ -8,6 +8,7 @@
 const axios = require('axios')
 const { Base64 } = require('js-base64')
 const pinyin = require('pinyin')
+const { renderSlot } = require('vue')
 // const Bsse64 = require('js-base64').Base64
 // 获取签名方法
 const getSecuritySign = require('./sign')
@@ -71,6 +72,9 @@ const registerRouter = function(app) {
   registerSingerDetail(app)
   registerSongsUrl(app)
   registerlyric(app)
+  registerAlbum(app)
+  registerTopList(app)
+  registerTopDetail(app)
 }
 
 // 注册推荐列表接口路由
@@ -425,6 +429,149 @@ const registerlyric = function(app) {
           code: ERR_OK,
           result: {
             lyric: Base64.decode(data.lyric)
+          }
+        })
+      } else {
+        res.json(data)
+      }
+    })
+  })
+}
+
+// 注册歌单专辑接口
+const registerAlbum = function(app) {
+  app.get('/api/getAlbum', (req, res) => {
+    const data = {
+      req_0: {
+        module: 'srf_diss_info.DissInfoServer',
+        method: 'CgiGetDiss',
+        param: {
+          disstid: Number(req.query.id),
+          onlysonglist: 1,
+          song_begin: 0,
+          song_num: 100
+        }
+      },
+      comm: {
+        g_tk: token,
+        uin: '0',
+        format: 'json',
+        platform: 'h5'
+      }
+    }
+
+    const sign = getSecuritySign(JSON.stringify(data))
+    const url = `https://u.y.qq.com/cgi-bin/musics.fcg?_=${getRandomVal()}&sign=${sign}`
+    post(url, data).then(response => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const list = data.req_0.data.songlist
+        const songList = handleSongList(list)
+        res.json({
+          code: ERR_OK,
+          result: {
+            songs: songList
+          }
+        })
+      } else {
+        res.json(data)
+      }
+    })
+  })
+}
+
+// 注册排行榜接口
+const registerTopList = function(app) {
+  app.get('/api/getTopList', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+
+    const data = JSON.stringify({
+      comm: { ct: 24 },
+      toplist: { module: 'musicToplist.ToplistInfoServer', method: 'GetAll', param: {} }
+    })
+
+    const randomKey = getRandomVal('recom')
+    const sign = getSecuritySign(data)
+    get(url, {
+      sign,
+      _: randomKey,
+      data
+    }).then(response => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const topList = []
+        const group = data.toplist.data.group
+
+        group.forEach(item => {
+          item.toplist.forEach(listItem => {
+            topList.push({
+              id: listItem.topId,
+              pic: listItem.frontPicUrl,
+              name: listItem.title,
+              period: listItem.period,
+              songList: listItem.song.map(songItem => {
+                return {
+                  id: songItem.songId,
+                  singerName: songItem.singerName,
+                  songName: songItem.title
+                }
+              })
+            })
+          })
+        })
+
+        res.json({
+          code: ERR_OK,
+          result: {
+            topList
+          }
+        })
+      } else {
+        res.json(data)
+      }
+    })
+  })
+}
+
+// 注册排行榜详情接口
+const registerTopDetail = function(app) {
+  app.get('/api/getTopDetail', (req, res) => {
+    const url = 'https://u.y.qq.com/cgi-bin/musics.fcg'
+    const { id, period } = req.query
+
+    const data = JSON.stringify({
+      detail: {
+        module: 'musicToplist.ToplistInfoServer',
+        method: 'GetDetail',
+        param: {
+          topId: Number(id),
+          offset: 0,
+          num: 100,
+          period
+        }
+      },
+      comm: {
+        ct: 24,
+        cv: 0
+      }
+    })
+
+    const randomKey = getRandomVal('getUCGI')
+    const sign = getSecuritySign(data)
+    get(url, {
+      sign,
+      '-': randomKey,
+      data
+    }).then(response => {
+      const data = response.data
+      if (data.code === ERR_OK) {
+        const list = data.detail.data.songInfoList
+        const songList = handleSongList(list)
+        console.log('songList--->111', songList)
+        res.json({
+          code: ERR_OK,
+          result: {
+            songs: songList
           }
         })
       } else {

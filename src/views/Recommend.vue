@@ -8,18 +8,25 @@
       .command-list
         h1.list-title(v-show="!loading") 热门歌单推荐
         ul
-          li.item(v-for="item in albums" @click="selectItem(item)")
+          li.item(
+            v-for="item in albums"
+            @click="selectItem(item)")
             .icon
               img(v-lazy="item.pic" width="60" height="60")
             .text
               h2.name {{ item.username }}
               p.title {{ item.title }}
+  router-view(v-slot="{ Component }")
+    transition(apper name="slide")
+      component(:is="Component" :data="selectedAlbum")
 </template>
 
 <script>
 import { getRecommend } from '../service/recommend'
 import Slider from '@/components/base/slider/slider.vue'
 import Scroll from '@/components/wrap-scroll'
+import storage from 'good-storage'
+import { ALBUM_KEY } from '@/assets/js/constant'
 
 export default {
   name: 'recommend',
@@ -36,12 +43,25 @@ export default {
   data() {
     return {
       sliders: [],
-      albums: []
+      albums: [],
+      selectedAlbum: null
     }
   },
   computed: {
     loading() {
       return !this.sliders.length || !this.albums.length
+    }
+  },
+  methods: {
+    selectItem(album) {
+      this.selectedAlbum = album
+      this.cacheAlbum(album)
+      this.$router.push({
+        path: `/recommend/${album.id}`
+      })
+    },
+    cacheAlbum(album) {
+      storage.session.set(ALBUM_KEY, album)
     }
   }
 }

@@ -3,7 +3,7 @@
   index-list(:data="singers" @select="select")
   router-view(v-slot="{ Component }")
     transition(apper name="slide")
-      component(:is="Component" :singer="selectSinger")
+      component(:is="Component" :data="selectSinger")
 
 </template>
 

@@ -4,6 +4,8 @@ const Search = () => import('@/views/Search'/* webpackChunkName: "recommend" */)
 const Singer = () => import('@/views/Singer'/* webpackChunkName: "recommend" */)
 const TopList = () => import('@/views/TopList'/* webpackChunkName: "recommend" */)
 const SingerDetail = () => import('@/views/singer-detail')
+const Album = () => import('@/views/album.vue')
+const TopDetail = () => import('@/views/top-detail.vue')
 
 const routes = [
   {
@@ -12,7 +14,13 @@ const routes = [
   },
   {
     path: '/recommend',
-    component: Recommend
+    component: Recommend,
+    children: [
+      {
+        path: ':id',
+        component: Album
+      }
+    ]
   },
   {
     path: '/search',
@@ -30,7 +38,13 @@ const routes = [
   },
   {
     path: '/topList',
-    component: TopList
+    component: TopList,
+    children: [
+      {
+        path: ':id',
+        component: TopDetail
+      }
+    ]
   }
 ]
 

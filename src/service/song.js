@@ -1,6 +1,6 @@
 import { get } from './base'
 
-export const porcessSongs = function(songs) {
+export const processSongs = function(songs) {
   if (!songs.length) {
     return Promise.resolve(songs)
   }

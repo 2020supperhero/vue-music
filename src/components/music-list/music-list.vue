@@ -19,11 +19,14 @@
     @scroll="onScroll"
     )
     .song-list-wrapper
-      song-list(:songs="songs" @select="selectItem")
+      song-list(
+        :songs="songs"
+        :rank="rank"
+        @select="selectItem")
 </template>
 
 <script>
-import Scroll from '@/components/base/scroll/scroll.vue'
+import Scroll from '@/components/wrap-scroll'
 import SongList from '@/components/base/song-list/song-list.vue'
 import { mapActions, mapState } from 'vuex'
 
@@ -47,7 +50,8 @@ export default {
       type: String,
       default: ''
     },
-    loading: Boolean
+    loading: Boolean,
+    rank: Boolean
   },
   data() {
     return {
@@ -85,7 +89,6 @@ export default {
       }
     },
     scrollStyle() {
-      console.log('this.playList-->', this.playList)
       const bottom = this.playList.length ? '60px' : '0'
       return {
         top: `${this.imagHeight}px`,
