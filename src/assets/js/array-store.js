@@ -13,7 +13,7 @@ function insertArray(arr, val, compare, maxLen) {
 
 function deleteFormArray(arr, compare) {
   const index = arr.findIndex(compare)
-  if (!~index) {
+  if (~index) {
     arr.splice(index, 1)
   }
 }
@@ -29,9 +29,16 @@ export const save = function(item, key, compare, maxLen) {
 export const remove = function(key, compare) {
   const items = storage.get(key, [])
   deleteFormArray(items, compare)
+  console.log('items-->', items)
+  storage.set(key, items)
   return items
 }
 
 export const load = function (key) {
   return storage.get(key, [])
+}
+
+export const clear = function(key) {
+  storage.remove(key)
+  return []
 }

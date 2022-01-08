@@ -3,7 +3,7 @@ import { useStore } from 'vuex'
 import Scroll from '@/components/base/scroll/scroll.vue'
 
 export default {
-  name: 'wrp-scroll',
+  name: 'wrap-scroll',
   props: Scroll.props,
   emits: Scroll.emits,
   render(ctx) {
