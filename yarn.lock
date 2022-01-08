@@ -911,31 +911,45 @@
     "@babel/helper-validator-identifier" "^7.15.7"
     to-fast-properties "^2.0.0"
 
-"@better-scroll/core@^2.4.2":
+"@better-scroll/core@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.nlark.com/@better-scroll/core/download/@better-scroll/core-2.2.1.tgz#3e35b1f6886c712cd9a6baf6aa0b31c754721414"
+  integrity sha1-PjWx9ohscSzZprr2qgsxx1RyFBQ=
+  dependencies:
+    "@better-scroll/shared-utils" "^2.2.1"
+
+"@better-scroll/core@^2.2.1":
   version "2.4.2"
   resolved "https://registry.nlark.com/@better-scroll/core/download/@better-scroll/core-2.4.2.tgz#e69470012d79923a18034c3e4931720fbb06eae5"
   integrity sha1-5pRwAS15kjoYA0w+STFyD7sG6uU=
   dependencies:
     "@better-scroll/shared-utils" "^2.4.2"
 
-"@better-scroll/observe-dom@^2.4.2":
-  version "2.4.2"
-  resolved "https://registry.nlark.com/@better-scroll/observe-dom/download/@better-scroll/observe-dom-2.4.2.tgz#cc1e6d82a8f53525c282c9a4bcea5d1be8c21c95"
-  integrity sha1-zB5tgqj1NSXCgsmkvOpdG+jCHJU=
+"@better-scroll/observe-dom@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.nlark.com/@better-scroll/observe-dom/download/@better-scroll/observe-dom-2.2.1.tgz#8b206e01077ae4e84a806cfd298e9104fb1729c6"
+  integrity sha1-iyBuAQd65OhKgGz9KY6RBPsXKcY=
   dependencies:
-    "@better-scroll/core" "^2.4.2"
+    "@better-scroll/core" "^2.2.1"
 
-"@better-scroll/shared-utils@^2.4.2":
+"@better-scroll/pull-up@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.nlark.com/@better-scroll/pull-up/download/@better-scroll/pull-up-2.2.1.tgz#373027d2be81844dd7c5a1ab59f3dc43f6d7a08a"
+  integrity sha1-NzAn0r6BhE3XxaGrWfPcQ/bXoIo=
+  dependencies:
+    "@better-scroll/core" "^2.2.1"
+
+"@better-scroll/shared-utils@^2.2.1", "@better-scroll/shared-utils@^2.4.2":
   version "2.4.2"
   resolved "https://registry.nlark.com/@better-scroll/shared-utils/download/@better-scroll/shared-utils-2.4.2.tgz#1ac5c97495727093a22a8009560795dd5e3c18da"
   integrity sha1-GsXJdJVycJOiKoAJVgeV3V48GNo=
 
-"@better-scroll/slide@^2.4.2":
-  version "2.4.2"
-  resolved "https://registry.nlark.com/@better-scroll/slide/download/@better-scroll/slide-2.4.2.tgz#024528ae57516a2ee99bea346381589e4e6a039c"
-  integrity sha1-AkUorldRai7pm+o0Y4FYnk5qA5w=
+"@better-scroll/slide@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.nlark.com/@better-scroll/slide/download/@better-scroll/slide-2.2.1.tgz#165d80d7b0673b715226ee87ee722755be1241ef"
+  integrity sha1-Fl2A17BnO3FSJu6H7nInVb4SQe8=
   dependencies:
-    "@better-scroll/core" "^2.4.2"
+    "@better-scroll/core" "^2.2.1"
 
 "@hapi/address@2.x.x":
   version "2.1.4"

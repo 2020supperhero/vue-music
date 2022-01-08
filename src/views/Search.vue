@@ -4,7 +4,7 @@
     search-input(
       v-model="query"
       )
-  .search-content
+  .search-content(v-show="!query")
     .hot-keys
       h1.title 热门搜索
       ul
@@ -14,21 +14,40 @@
           @click="addQuery(item.key)"
         )
           span {{ item.key }}
+  .search-result(v-show="query")
+    suggest(
+      :query="query"
+      @select-song="selectSong"
+      @select-singer="selectSinger"
+      )
+  router-view(v-slot="{ Component }")
+    transition(apper name="slide")
+      component(:is="Component" :data="selectedSinger")
+
 </template>
 
 <script>
 import { ref } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import SearchInput from '@/components/search/search-input.vue'
+import Suggest from '@/components/search/suggest.vue'
 import { getHotKeys } from '@/service/search.js'
+import { SINGER_KEY } from '@/assets/js/constant.js'
+import storage from 'good-storage'
 
 export default {
     name: 'search',
     components: {
-        SearchInput
+        SearchInput,
+        Suggest
     },
     setup() {
+      const store = useStore()
+      const router = useRouter()
       const query = ref('')
       const hotKeys = ref([])
+      const selectedSinger = ref([])
 
       getHotKeys().then(result => {
         hotKeys.value = result.hotKeys
@@ -37,10 +56,29 @@ export default {
       const addQuery = function(item) {
         query.value = item
       }
+
+      const selectSong = function (song) {
+        store.dispatch('addSong', song)
+      }
+
+      const selectSinger = function(singer) {
+        selectedSinger.value = singer
+        cacheSinger(singer)
+        router.push({
+          path: `/search/${singer.mid}`
+        })
+      }
+      function cacheSinger(singer) {
+        storage.session.set(SINGER_KEY, singer)
+      }
+
       return {
         query,
         hotKeys,
-        addQuery
+        addQuery,
+        selectSong,
+        selectSinger,
+        selectedSinger
       }
     }
 }
@@ -76,6 +114,10 @@ export default {
         color: $color-text-d;
       }
     }
+  }
+  .search-result {
+    flex: 1;
+    overflow: hidden;
   }
 }
 </style>

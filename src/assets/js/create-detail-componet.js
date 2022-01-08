@@ -3,7 +3,6 @@ import MusicList from '@/components/music-list/music-list.vue'
 import storage from 'good-storage'
 
 export const createDetailComponent = function(name, key, fetch) {
-  console.log('name, key, fetch--->', name, key, fetch)
   return {
     name,
     components: { MusicList },
@@ -20,7 +19,7 @@ export const createDetailComponent = function(name, key, fetch) {
       computedData() {
         let ret = null
         const data = this.data
-        if (data) {
+        if (data.length) {
           ret = data
         } else {
           const cached = storage.session.get(key)

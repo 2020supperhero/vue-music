@@ -15,7 +15,7 @@ export const processSongs = function(songs) {
       song.url = map[song.mid]
       return song
     }).filter(song => {
-      return song.url.indexOf('vkey') > -1
+      return song.url && song.url.indexOf('vkey') > -1
     })
   }).catch(e => {
     console.log('e===>', e)

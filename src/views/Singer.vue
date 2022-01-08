@@ -27,13 +27,11 @@ export default {
   async created() {
     const result = await getSingerList()
     this.singers = result.singers
-    console.log('result-->', result)
   },
   methods: {
     select(singer) {
       this.selectSinger = singer
       this.cacheSinger(singer)
-      console.log('this.selectSinger-->', this.selectSinger)
       this.$router.push({
         path: `/singer/${singer.mid}`
       })
