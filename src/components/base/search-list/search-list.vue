@@ -7,7 +7,10 @@
       @click="selectItem(item)"
     )
       span.text {{ item }}
-      span.icon(@click.stop="deleteItem(item)")
+      span.icon(
+        v-if="showDelete"
+        @click.stop="deleteItem(item)"
+      )
         i.icon-delete
 </template>
 
@@ -20,6 +23,10 @@ export default {
       default() {
         return []
       }
+    },
+    showDelete: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['select', 'delete'],

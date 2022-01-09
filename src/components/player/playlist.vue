@@ -45,6 +45,10 @@ teleport(to="body")
                 @click.stop="removeSong(song)"
               )
                 i.icon-delete
+        .list-add
+          .add(@click="showAddSong")
+            i.icon-add
+            span.text 添加歌曲到列表
         .list-footer(
           @click.stop="hide"
         )
@@ -55,12 +59,16 @@ teleport(to="body")
           text="是否清空播放列表"
           confirm-btn-text="清空"
         )
+        add-song(
+          ref="addSongRef"
+        )
 </template>
 
 <script>
 import { defineComponent, ref, computed, nextTick, watch } from 'vue'
 import Scroll from '@/components/base/scroll/scroll'
 import Confirm from '@/components/base/confirm/confirm.vue'
+import AddSong from '@/components/add-song/addSong.vue'
 import { useStore } from 'vuex'
 import { useMode } from './use-mode'
 import { useFavorite } from './use-favorite'
@@ -69,7 +77,8 @@ export default defineComponent({
   name: 'PlayList',
   components: {
     Scroll,
-    Confirm
+    Confirm,
+    AddSong
   },
   setup() {
     const visible = ref(false)
@@ -77,6 +86,7 @@ export default defineComponent({
     const listRef = ref(null)
     const removing = ref(false)
     const confirmRef = ref(null)
+    const addSongRef = ref(null)
 
     const store = useStore()
     const playlist = computed(() => store.state.playList)
@@ -159,7 +169,13 @@ export default defineComponent({
       hide()
     }
 
+    const showAddSong = function() {
+      console.log('addSongRef.value-->', addSongRef.value)
+      addSongRef.value.show()
+    }
+
     return {
+      addSongRef,
       scrollRef,
       confirmRef,
       listRef,
@@ -178,7 +194,8 @@ export default defineComponent({
       selectItem,
       removeSong,
       showConfirm,
-      confirmClear
+      confirmClear,
+      showAddSong
     }
   }
 })
@@ -215,25 +232,84 @@ export default defineComponent({
     .list-header {
       position: relative;
       padding: 20px 30px 10px 20px;
+      .title {
+        display: flex;
+        align-items: center;
+        .icon {
+          margin-right: 10px;
+          font-size: 24px;
+          color: $color-theme-d;
+        }
+        .text {
+          flex: 1;
+          font-size: $font-size-medium;
+          color: $color-text-l;
+        }
+        .clear {
+          @include extend-click();
+          .icon-clear {
+            font-size: $font-size-medium;
+            color: $color-text-d;
+          }
+        }
+      }
     }
-    .title {
-      display: flex;
-      align-items: center;
-      .icon {
-        margin-right: 10px;
-        font-size: 24px;
-        color: $color-theme-d;
-      }
-      .text {
-        flex: 1;
-        font-size: $font-size-medium;
-        color: $color-text-l;
-      }
-      .clear {
-        @include extend-click();
-        .icon-clear {
+    .list-content {
+      max-height: 240px;
+      overflow: hidden;
+      .item {
+        display: flex;
+        align-items: center;
+        height: 40px;
+        padding: 0 30px 0 20px;
+        overflow: hidden;
+        .current {
+          flex: 0 0 20px;
+          width: 20px;
+          font-size: $font-size-small;
+          color: $color-theme-d;
+        }
+        .text {
+          flex: 1;
+          @include no-wrap();
           font-size: $font-size-medium;
           color: $color-text-d;
+        }
+        .favorite {
+          @include extend-click();
+          margin-right: 15px;
+          font-size: $font-size-small;
+          color: $color-theme;
+          .icon-favorite {
+            color: $color-sub-theme;
+          }
+        }
+        .delete {
+          @include extend-click();
+          font-size: $font-size-small;
+          color: $color-theme;
+          &.disable {
+            color: $color-theme-d;
+          }
+        }
+      }
+    }
+    .list-add {
+      width: 140px;
+      margin: 20px auto 30px auto;
+      .add {
+        display: flex;
+        align-items: center;
+        padding: 8px 16px;
+        border: 1px solid $color-text-l;
+        border-radius: 100px;
+        color: $color-text-l;
+        .icon-add {
+          margin-right: 5px;
+          font-size: $font-size-small-s;
+        }
+        .text {
+          font-size: $font-size-small;
         }
       }
     }
@@ -244,46 +320,7 @@ export default defineComponent({
       font-size: $font-size-medium-x;
       color: $color-text-l;
     }
-  }
-  .list-content {
-    max-height: 240px;
-    overflow: hidden;
-    .item {
-      display: flex;
-      align-items: center;
-      height: 40px;
-      padding: 0 30px 0 20px;
-      overflow: hidden;
-      .current {
-        flex: 0 0 20px;
-        width: 20px;
-        font-size: $font-size-small;
-        color: $color-theme-d;
-      }
-      .text {
-        flex: 1;
-        @include no-wrap();
-        font-size: $font-size-medium;
-        color: $color-text-d;
-      }
-      .favorite {
-        @include extend-click();
-        margin-right: 15px;
-        font-size: $font-size-small;
-        color: $color-theme;
-        .icon-favorite {
-          color: $color-sub-theme;
-        }
-      }
-      .delete {
-        @include extend-click();
-        font-size: $font-size-small;
-        color: $color-theme;
-        &.disable {
-          color: $color-theme-d;
-        }
-      }
-    }
+
   }
 }
 </style>

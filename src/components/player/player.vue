@@ -92,6 +92,7 @@ import { useFavorite } from './use-favorite'
 import { useCd } from './use-cd'
 import { useLyric } from './use-lyric'
 import { useMiddleInteractive } from './use-middle-interactive'
+import { usePlayHistory } from './use-play-history'
 import ProgressBar from './progress-bar.vue'
 import Scroll from '@/components/base/scroll/scroll.vue'
 import { formatTime } from '@/assets/js/util.js'
@@ -191,6 +192,8 @@ export default defineComponent({
       middleRStyle
     } = useMiddleInteractive()
 
+    const { savePlay } = usePlayHistory()
+
     console.log('modeIcon-->', modeIcon.value)
     const goBack = function() {
       store.commit('setFullScreen', false)
@@ -257,6 +260,7 @@ export default defineComponent({
       }
       songReady.value = true
       playLyric()
+      savePlay(currentSong.value)
     }
 
     // 即使当前播放错误 也能切歌
