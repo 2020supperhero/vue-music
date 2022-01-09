@@ -38,7 +38,6 @@ export const changeMode = function({ commit, state, getters }, mode) {
 }
 
 export const removeSong = function({ commit, state }, song) {
-  console.log('song---->', song.id)
   const sequenceList = state.sequenceList.slice()
   const playList = state.playList.slice()
 

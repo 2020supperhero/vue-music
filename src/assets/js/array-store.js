@@ -45,3 +45,7 @@ export const clear = function(key) {
   storage.remove(key)
   return []
 }
+
+export const saveAll = function(items, key) {
+  storage.set(key, items)
+}

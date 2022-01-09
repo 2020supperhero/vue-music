@@ -1,7 +1,17 @@
 <template lang="pug">
 m-header
 tab
-router-view(:style="viewStyle")
+router-view(:style="viewStyle" v-slot="{ Component }")
+  keep-alive
+    component(:is="Component")
+router-view(
+  :style="viewStyle"
+  name="user"
+  v-slot="{ Component }"
+)
+  transition(apper name="slide")
+    keep-alive
+      component(:is="Component")
 Player
 </template>
 <script>
