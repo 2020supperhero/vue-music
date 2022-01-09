@@ -1,75 +1,83 @@
 <template lang="pug">
 .player(v-show="playList.length")
-  .normal-player(v-show="fullScreen")
-    .background
-      img(:src="currentSong && currentSong.pic")
-    .top
-      .back(@click="goBack")
-        i.icon-back
-      .title {{ currentSong.name }}
-      .subtitle {{ currentSong.singer }}
-    .middle(
-      @touchstart.prevent="onMiddleTouchStart"
-      @touchmove.prevent="onMiddleTouchMove"
-      @touchend.prevent="onMiddleTouchEnd"
-    )
-      .middle-l(:style="middleLStyle")
-        .cd-wrapper
-          .cd(ref="cdRef")
-            img.image(
-              ref="cdImageRef"
-              :class="cdCls"
-              :src="currentSong.pic"
-              )
-        .playing-lyric-wrapper
-          .playing-lyric {{ playingLyric }}
-      scroll.middle-r(
-        ref="lyricScrollRef"
-        :style="middleRStyle"
-        )
-        .lyric-wrapper
-          div(
-            v-if="currentLyric"
-            ref="lyricListRef"
-            )
-            p.text(
-              :class="{'current': currentLineNum === index}"
-              v-for="(line, index) in currentLyric.lines"
-              :key="line.num"
-              ) {{ line.txt }}
-          .pure-music(v-show="pureMusicLyric")
-            p {{ pureMusicLyric }}
-
-    .bottom
-      .dot-wrapper
-        span.dot(:class="{'active': currentShow==='cd'}")
-        span.dot(:class="{'active': currentShow==='lyric'}")
-      .progress-wrapper
-        span.time.time-l {{ formatTime(currentTime) }}
-        .progress-bar-wrapper
-          progress-bar(
-            ref="barRef"
-            :progress="progress"
-            @progress-changing="onProgressChanging"
-            @progress-changed="onProgressChanged"
-            )
-        span.time.time-r {{ formatTime(currentSong.duration) }}
-      .operators
-        .icon.i-left
-          i(:class="modeIcon" @click="changeMode")
-        .icon.i-left(:class="disableCls")
-          i.icon-prev(@click="prevPlay")
-        .icon.i-center(:class="disableCls")
-          i(
-            :class="playIcon"
-            @click="togglePlay"
+  transition(
+    name="normal"
+    @enter="enter"
+    @after-enter="afterEnter"
+    @leave="leave"
+    @after-leave="afterLeave"
+  )
+    .normal-player(v-show="fullScreen")
+      .background
+        img(:src="currentSong && currentSong.pic")
+      .top
+        .back(@click="goBack")
+          i.icon-back
+        .title {{ currentSong.name }}
+        .subtitle {{ currentSong.singer }}
+      .middle(
+        @touchstart.prevent="onMiddleTouchStart"
+        @touchmove.prevent="onMiddleTouchMove"
+        @touchend.prevent="onMiddleTouchEnd"
+      )
+        .middle-l(:style="middleLStyle")
+          .cd-wrapper(ref="cdWrapperRef")
+            .cd(ref="cdRef")
+              img.image(
+                ref="cdImageRef"
+                :class="cdCls"
+                :src="currentSong.pic"
+                )
+          .playing-lyric-wrapper
+            .playing-lyric {{ playingLyric }}
+        scroll.middle-r(
+          ref="lyricScrollRef"
+          :style="middleRStyle"
           )
-        .icon.i-right(:class="disableCls")
-          i.icon-next(@click="nextPlay")
-        .icon.i-right
-          i.icon-not-favorite(
-            :class="getFavoriteIcon(currentSong)"
-            @click="toggleFavorite(currentSong)")
+          .lyric-wrapper
+            div(
+              v-if="currentLyric"
+              ref="lyricListRef"
+              )
+              p.text(
+                :class="{'current': currentLineNum === index}"
+                v-for="(line, index) in currentLyric.lines"
+                :key="line.num"
+                ) {{ line.txt }}
+            .pure-music(v-show="pureMusicLyric")
+              p {{ pureMusicLyric }}
+
+      .bottom
+        .dot-wrapper
+          span.dot(:class="{'active': currentShow==='cd'}")
+          span.dot(:class="{'active': currentShow==='lyric'}")
+        .progress-wrapper
+          span.time.time-l {{ formatTime(currentTime) }}
+          .progress-bar-wrapper
+            progress-bar(
+              ref="barRef"
+              :progress="progress"
+              @progress-changing="onProgressChanging"
+              @progress-changed="onProgressChanged"
+              )
+          span.time.time-r {{ formatTime(currentSong.duration) }}
+        .operators
+          .icon.i-left
+            i(:class="modeIcon" @click="changeMode")
+          .icon.i-left(:class="disableCls")
+            i.icon-prev(@click="prevPlay")
+          .icon.i-center(:class="disableCls")
+            i(
+              :class="playIcon"
+              @click="togglePlay"
+            )
+          .icon.i-right(:class="disableCls")
+            i.icon-next(@click="nextPlay")
+          .icon.i-right
+            i.icon-not-favorite(
+              :class="getFavoriteIcon(currentSong)"
+              @click="toggleFavorite(currentSong)")
+
   mini-player(
     :progress="progress"
     :toggle-play="togglePlay"
@@ -98,6 +106,7 @@ import Scroll from '@/components/base/scroll/scroll.vue'
 import { formatTime } from '@/assets/js/util.js'
 import { PLAY_MODE } from '@/assets/js/constant.js'
 import MiniPlayer from './mini-player.vue'
+import useAnimation from './use-animation'
 
 export default defineComponent({
   name: 'player',
@@ -193,8 +202,8 @@ export default defineComponent({
     } = useMiddleInteractive()
 
     const { savePlay } = usePlayHistory()
+    const { cdWrapperRef, enter, afterEnter, leave, afterLeave } = useAnimation()
 
-    console.log('modeIcon-->', modeIcon.value)
     const goBack = function() {
       store.commit('setFullScreen', false)
     }
@@ -307,6 +316,7 @@ export default defineComponent({
 
     return {
       /* variate */
+      cdWrapperRef,
       fullScreen,
       currentSong,
       audioRef,
@@ -349,7 +359,11 @@ export default defineComponent({
       end,
       onMiddleTouchStart,
       onMiddleTouchMove,
-      onMiddleTouchEnd
+      onMiddleTouchEnd,
+      enter,
+      afterEnter,
+      leave,
+      afterLeave
     }
   }
 })
@@ -364,7 +378,7 @@ export default defineComponent({
     top: 0;
     bottom: 0;
     z-index: 150;
-    background-color: $color-background;
+    background: $color-background;
     .background {
       position: absolute;
       left: 0;
@@ -374,6 +388,7 @@ export default defineComponent({
       z-index: -1;
       opacity: 0.6;
       filter: blur(20px);
+
       img {
         width: 100%;
         height: 100%;
@@ -381,19 +396,19 @@ export default defineComponent({
     }
     .top {
       position: relative;
-      margin-top: 25px;
+      margin-bottom: 25px;
       .back {
         position: absolute;
         top: 0;
         left: 6px;
         z-index: 50;
-        .icon-back {
-          display: block;
-          padding: 9px;
-          font-size: $font-size-large-x;
-          color: $color-theme;
-          transform: rotate(-90deg);
-        }
+      }
+      .icon-back {
+        display: block;
+        padding: 9px;
+        font-size: $font-size-large-x;
+        color: $color-theme;
+        transform: rotate(-90deg);
       }
       .title {
         width: 70%;
@@ -414,22 +429,21 @@ export default defineComponent({
     .middle {
       position: fixed;
       width: 100%;
-      top: 105px;
+      top: 80px;
       bottom: 170px;
       white-space: nowrap;
       font-size: 0;
       .middle-l {
         display: inline-block;
-        // display: none;
         vertical-align: top;
         position: relative;
         width: 100%;
+        height: 0;
         padding-top: 80%;
         .cd-wrapper {
           position: absolute;
-          left: 50%;
+          left: 10%;
           top: 0;
-          transform: translateX(-50%);
           width: 80%;
           box-sizing: border-box;
           height: 100%;
@@ -442,13 +456,13 @@ export default defineComponent({
               left: 0;
               top: 0;
               width: 100%;
-              // height: 100%;
-              border-radius: 50%;
+              height: 100%;
               box-sizing: border-box;
-              border: 10px solid rgba(255, 255, 255, .1);
+              border-radius: 50%;
+              border: 10px solid rgba(255, 255, 255, 0.1);
             }
             .playing {
-              animation: rotate 20s linear infinite;
+              animation: rotate 20s linear infinite
             }
           }
         }
@@ -494,9 +508,9 @@ export default defineComponent({
       }
     }
     .bottom {
-      width: 100%;
       position: absolute;
       bottom: 50px;
+      width: 100%;
       .dot-wrapper {
         text-align: center;
         font-size: 0;
@@ -507,11 +521,11 @@ export default defineComponent({
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background-color: $color-text-l;
+          background: $color-text-l;
           &.active {
             width: 20px;
             border-radius: 5px;
-            background-color: $color-text-ll;
+            background: $color-text-ll;
           }
         }
       }
@@ -519,7 +533,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
         width: 80%;
-        margin: 0 auto;
+        margin: 0px auto;
         padding: 10px 0;
         .time {
           color: $color-text;
@@ -540,10 +554,9 @@ export default defineComponent({
       }
       .operators {
         display: flex;
-        justify-content: space-around;
         align-items: center;
         .icon {
-          // flex: 1;
+          flex: 1;
           color: $color-theme;
           &.disable {
             color: $color-theme-d;
@@ -563,11 +576,26 @@ export default defineComponent({
           }
         }
         .i-right {
-          text-align: left;
+          text-align: left
         }
         .icon-favorite {
           color: $color-sub-theme;
         }
+      }
+    }
+    &.normal-enter-active, &.normal-leave-active {
+      transition: all .6s;
+      .top, .bottom {
+        transition: all .6s cubic-bezier(0.45, 0, 0.55, 1);
+      }
+    }
+    &.normal-enter-from, &.normal-leave-to {
+      opacity: 0;
+      .top {
+        transform: translate3d(0, -100px, 0);
+      }
+      .bottom {
+        transform: translate3d(0, 100px, 0)
       }
     }
   }
