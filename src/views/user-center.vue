@@ -1,5 +1,7 @@
 <template lang="pug">
-.user-center()
+.user-center(
+  v-no-result:[noResultText]="noResult"
+)
   .back(@click="back")
     i.icon-back
   .switches-wrapper

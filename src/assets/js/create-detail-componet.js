@@ -7,7 +7,12 @@ export const createDetailComponent = function(name, key, fetch) {
     name,
     components: { MusicList },
     props: {
-      data: Object
+      data: {
+        type: Object,
+        default() {
+          return {}
+        }
+      }
     },
     data() {
       return {
@@ -18,7 +23,7 @@ export const createDetailComponent = function(name, key, fetch) {
     computed: {
       computedData() {
         let ret = null
-        const data = this.data
+        const data = this.data || {}
         if (data.length) {
           ret = data
         } else {

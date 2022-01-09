@@ -5,7 +5,11 @@
       a(:href="item.link")
         img(:src="item.pic")
   .dots-wrapper
-    span.dot(v-for="item, index in sliders" :class="{'active': curIndex === index}")
+    span.dot(
+      v-for="item, index in sliders"
+      :key="item.id"
+      :class="{'active': curIndex === index}"
+    )
 </template>
 
 <script>
@@ -33,7 +37,7 @@ export default {
 
 <style lang="scss" scoped>
   .slider {
-    // min-height: 1px;
+    min-height: 1px;
     font-size: 0;
     touch-action: pan-y;
     .slider-group {
@@ -50,8 +54,8 @@ export default {
         }
         img {
           display: block;
-          // width: 300px;
           width: 100%;
+          // width: 300px;
           // height: auto;
         }
       }

@@ -7,7 +7,7 @@
     :style="bgImageStyle"
     ref="bgImage"
     )
-    //- div.filter(:style="filterStyle")
+    div.filter(:style="filterStyle")
     .play-btn-wrapper(:style="playBtnPlay")
       .play-btn(@click="random" v-show="songs.length > 0")
         i.icon-play
@@ -17,6 +17,7 @@
     v-loading="loading"
     :probe-type="3"
     @scroll="onScroll"
+    v-no-result:[noResultText]="noResult"
     )
     .song-list-wrapper
       song-list(
@@ -51,7 +52,11 @@ export default {
       default: ''
     },
     loading: Boolean,
-    rank: Boolean
+    rank: Boolean,
+    noResultText: {
+      type: String,
+      default: '抱歉，没有找到可播放的歌曲'
+    }
   },
   data() {
     return {

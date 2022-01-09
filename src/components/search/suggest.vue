@@ -2,6 +2,7 @@
 .suggest(
   ref="rootRef"
   v-loading:[loadingText]="loading"
+  v-no-result:[noResultText]="noResult"
 )
   ul.suggest-list
     li.suggest-item(
@@ -48,7 +49,7 @@ export default {
     const hasMore = ref(true)
     const page = ref(1)
     const loadingText = ref('')
-    const noResultText = ref('')
+    const noResultText = ref('抱歉，暂无搜索结果')
     const manualLoading = ref(false)
 
     const loading = computed(() => !singer.value && !songs.value.length)
