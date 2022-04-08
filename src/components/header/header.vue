@@ -1,7 +1,7 @@
 <template lang="pug">
 .header
   span.icon
-  h1.text Chicken Music
+  h1.text QQ 音乐
   router-link.mine(to="/user")
     i.icon-mine
 </template>

@@ -21,5 +21,7 @@ module.exports = {
       const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
       config.plugins.push(new BundleAnalyzerPlugin())
     }
-  }
+  },
+  productionSourceMap: false,
+  publicPath: process.env.NODE_ENV === 'production' ? '/music' : '/'
 }
