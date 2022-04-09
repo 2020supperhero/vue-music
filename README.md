@@ -8,7 +8,11 @@ yarn install
 
 ### Compiles and hot-reloads for development
 ```
+# 启动服务
 yarn serve
+
+# 构建项目并启动一个node服务(用于部署在服务器)
+npm run deploy
 ```
 
 ### Compiles and minifies for production
